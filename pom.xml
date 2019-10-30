@@ -24,7 +24,7 @@
 
     <groupId>io.r2dbc</groupId>
     <artifactId>r2dbc-h2</artifactId>
-    <version>0.8.0.consol.BUILD-SNAPSHOT</version>
+    <version>0.8.0.consol.1</version>
     <packaging>jar</packaging>
 
     <name>Reactive Relational Database Connectivity - H2</name>
@@ -48,6 +48,14 @@
         <slf4j.version>1.7.26</slf4j.version>
         <spring-boot.version>2.1.8.RELEASE</spring-boot.version>
     </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>buildn</id>
+            <name>Consol Nexus</name>
+            <url>http://build-n.int.consol.de/repository/dc-retail-thirdparty/</url>
+        </repository>
+    </distributionManagement>
 
     <dependencyManagement>
         <dependencies>
