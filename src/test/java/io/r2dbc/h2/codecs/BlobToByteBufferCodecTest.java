@@ -17,57 +17,52 @@
 package io.r2dbc.h2.codecs;
 
 import io.r2dbc.h2.client.Client;
-import io.r2dbc.spi.Clob;
 import org.h2.value.Value;
 import org.h2.value.ValueLobDb;
 import org.h2.value.ValueNull;
 import org.junit.jupiter.api.Test;
-import reactor.core.publisher.Flux;
-import reactor.test.StepVerifier;
 
-import java.nio.charset.StandardCharsets;
+import java.nio.ByteBuffer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
-final class ClobCodecTest {
+final class BlobToByteBufferCodecTest {
 
-    String TEST = "hello你好こんにちはアロハ안녕하세요Здравствуйте";
-    byte[] TEST_BYTES = TEST.getBytes(StandardCharsets.UTF_8);
+    byte[] TEST_BYTES = "Hello".getBytes();
 
     @Test
     void decode() {
-        Flux.from(new ClobCodec(mock(Client.class)).decode(ValueLobDb.createSmallLob(Value.CLOB , TEST_BYTES), Clob.class).stream())
-            .as(StepVerifier::create)
-            .expectNext(TEST)
-            .verifyComplete();
+
+        ByteBuffer decoded = new BlobToByteBufferCodec(mock(Client.class)).decode(ValueLobDb.createSmallLob(Value.BLOB, TEST_BYTES), ByteBuffer.class);
+        assertThat(decoded).isEqualTo(ByteBuffer.wrap(TEST_BYTES));
     }
 
     @Test
     void decodeNull() {
-        assertThat(new ClobCodec(mock(Client.class)).doDecode(null, Clob.class)).isNull();
+        assertThat(new BlobToByteBufferCodec(mock(Client.class)).doDecode(null, ByteBuffer.class)).isNull();
     }
 
     @Test
     void doCanDecode() {
-        ClobCodec codec = new ClobCodec(mock(Client.class));
+        BlobToByteBufferCodec codec = new BlobToByteBufferCodec(mock(Client.class));
 
-        assertThat(codec.doCanDecode(Value.CLOB)).isTrue();
-        assertThat(codec.doCanDecode(Value.BLOB)).isFalse();
+        assertThat(codec.doCanDecode(Value.BLOB)).isTrue();
+        assertThat(codec.doCanDecode(Value.CLOB)).isFalse();
         assertThat(codec.doCanDecode(Value.INT)).isFalse();
     }
 
     @Test
     void doEncodeNoValue() {
         assertThatIllegalArgumentException().isThrownBy(() -> {
-            new ClobCodec(mock(Client.class)).doEncode(null);
+            new BlobToByteBufferCodec(mock(Client.class)).doEncode(null);
         }).withMessage("value must not be null");
     }
 
     @Test
     void encodeNull() {
-        assertThat(new ClobCodec(mock(Client.class)).encodeNull())
+        assertThat(new BlobToByteBufferCodec(mock(Client.class)).encodeNull())
             .isEqualTo(ValueNull.INSTANCE);
     }
 }
